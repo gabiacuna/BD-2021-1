@@ -89,7 +89,24 @@ while opcion != '0':
         region, id_region = entrada.split(', ')
 
         create_region(cursor, connection, region, int(id_region))
-#    elif opcion == '3':
+    elif opcion == '3':
+        entrada = input('Ingrese el codigo o nombre de la comuna a vizualizar:\t')
+        if entrada[0] in '0123456789':
+            select = 'SELECT * FROM CASOS_POR_COMUNA WHERE Codigo_comuna = ' + entrada
+            cursor.execute(select)
+            print('llega aca')
+            for n_comuna, id_comuna, pob, casos in cursor:
+                porc = int(casos)/int(pob)
+                print('En la comuna', n_comuna, 'de los', pob, 'habitantes,', casos,'estan con Covid-21. Esto es un',round(porc*100),'% de la comuna.')
+        else:
+            select = 'SELECT * FROM CASOS_POR_COMUNA WHERE Comuna = ' + entrada
+            cursor.execute(select)
+            print('llega aca')
+            for n_comuna, id_comuna, pob, casos in cursor:
+                porc = int(casos)/int(pob)
+                print('En la comuna', n_comuna, 'de los', pob, 'habitantes,', casos,'estan con Covid-21. Esto es un',porc*100,'% de la comuna.')
+    
+    #elif opcion == '4':
 
     opcion = input('\nIngrese la operacion a realizar:\t')
 
