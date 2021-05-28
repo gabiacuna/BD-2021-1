@@ -34,3 +34,31 @@ with open('RegionesComunas.csv') as regionesC_file:
             connection.commit()
 
 connection.close()
+
+
+'''
+ESTO ES DEL ARCH SQL, LO PONGO ACA PARA QUE QUEDE EN EL GIT
+/* VIEWS: */
+CREATE OR REPLACE VIEW vista_all_regiones AS
+    SELECT region FROM CASOS_POR_REGION ORDER BY Codigo_region;
+
+SELECT * FROM vista_all_regiones;
+
+CREATE OR REPLACE VIEW vista_all_comunas AS
+    SELECT comuna FROM CASOS_POR_COMUNA ORDER BY Codigo_comuna;
+
+SELECT * FROM vista_all_comunas;
+
+/* TRIGGERS */
+
+CREATE OR REPLACE TRIGGER trigger_casos_region_15
+BEFORE INSERT OR UPDATE
+ON CASOS_POR_REGION
+FOR EACH ROW
+BEGIN
+    IF :new.casos_confirmados / :new.poblacion > 0.15 THEN
+        :new.casos_confirmados := -1;
+        :new.poblacion := -1;
+    END IF;
+END trigger_casos_region_15;
+'''
