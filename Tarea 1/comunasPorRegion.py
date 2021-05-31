@@ -7,7 +7,7 @@ cursor = connection.cursor()
 cursor.execute (
     """
         CREATE TABLE COMUNAS_POR_REGION(
-            Codigo_region INTEGER NOT NULL,
+            Codigo_region INTEGER NOT NULL REFERENCES CASOS_POR_REGION(Codigo_region),
             Region VARCHAR2(50) NOT NULL,
             Codigo_comuna INTEGER NOT NULL,
             PRIMARY KEY(Codigo_comuna)
