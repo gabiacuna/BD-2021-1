@@ -4,17 +4,17 @@ connection = cx_Oracle.connect('TODO', '123', 'localhost:1521')
 print('Database version:', connection.version)
 cursor = connection.cursor()
 
-cursor.execute (
-    """
-        CREATE TABLE CASOS_POR_REGION(
-            Codigo_region INTEGER NOT NULL,
-            Region VARCHAR2(50) NOT NULL,
-            Casos_confirmados INTEGER NOT NULL,
-            Poblacion INTEGER NOT NULL,
-            PRIMARY KEY(Codigo_region)
-        )
-    """
-)
+# cursor.execute (
+#     """
+#         CREATE TABLE CASOS_POR_REGION(
+#             Codigo_region INTEGER NOT NULL,
+#             Region VARCHAR2(50) NOT NULL,
+#             Casos_confirmados INTEGER NOT NULL,
+#             Poblacion INTEGER NOT NULL,
+#             PRIMARY KEY(Codigo_region)
+#         )
+#     """
+# )
 
 casos_regiones = {} #id_region : [region,casos,poblacion]
 comunas_en_region = {} #id_region : [comuna,comuna2...]
