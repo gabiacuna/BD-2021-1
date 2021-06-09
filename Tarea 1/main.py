@@ -42,6 +42,35 @@ def create_region(cursor, connection, region, id_region):
         print('Insercion completada')
         connection.commit()
     
+def casos_region(cursor):
+    regiones = {}
+    cursor.execute("SELECT * FROM CASOS_POR_REGION")
+
+    for id_r, nombre in cursor:
+        regiones[id_r] = [nombre, 0]
+    
+    cursor.execute("""SELECT Casos_confirmados, Codigo_region FROM CASOS_POR_COMUNA""")
+
+    for casos, cod_r in cursor:
+        regiones[cod_r][1] += casos
+    return regiones
+
+def mod_cant_casos_comuna(cursor, id_comuna, n):
+    cursor.execute("SELECT Casos_confirmados FROM CASOS_POR_COMUNA WHERE Codigo_comuna = :id",[id_comuna])
+
+    for casos in cursor:
+        new_casos = int(casos[0]) + int(n)
+        update = 'UPDATE CASOS_POR_COMUNA SET Casos_confirmados = ' + str(new_casos)
+        update +=' WHERE Codigo_comuna = ' + id_comuna
+    
+    try:
+        cursor.execute(update)
+    except Exception as err:
+        print('Hubo algun error creando agregando casos a la Comuna:', err)
+        return'Hubo algun error'
+    else:
+        connection.commit()
+        return 'Actualización completada'
 
 connection = cx_Oracle.connect('TODO', '123', 'localhost:1521')
 print('Database version:', connection.version)
@@ -65,13 +94,6 @@ cursor.execute(
 )
 
 # Creación Views:
-
-cursor.execute(
-    """
-    CREATE OR REPLACE VIEW vista_all_regiones AS
-        SELECT region, casos_confirmados FROM CASOS_POR_REGION ORDER BY Codigo_region
-    """
-)
 
 cursor.execute(
     """
@@ -110,6 +132,7 @@ while opcion != '0':
         comuna, id_comuna, pob, casos, id_region = entrada.split(', ')
 
         create_comuna(cursor, connection, comuna,id_comuna,pob,casos,id_region)
+
     elif opcion == '2':
         print('Ingrese los datos de la comuna a crear, con formato,')
         print('\t\tregion, codigo_region')
@@ -118,8 +141,9 @@ while opcion != '0':
         region, id_region = entrada.split(', ')
 
         create_region(cursor, connection, region, int(id_region))
+
     elif opcion == '3':
-        entrada = input('Ingrese el codigo o nombre de la comuna a vizualizar:\t')
+        entrada = input('Ingrese el codigo de la comuna a vizualizar:\t')
         if entrada[0] in '0123456789':  #En caso de que el user ingrese el id de la comuna
             select = 'SELECT * FROM CASOS_POR_COMUNA WHERE Codigo_comuna = ' + entrada
             cursor.execute(select)
@@ -127,31 +151,28 @@ while opcion != '0':
             for n_comuna, id_comuna, pob, casos, id_region in cursor:
                 porc = int(casos)/int(pob)
                 print('En la comuna', n_comuna, 'de los', pob, 'habitantes,', casos,'estan con Covid-21. Esto es un',round(porc*100),'% de la comuna.')
-        else:   # en caso de que el user ingrese el nombre de la comuna 
-            select = 'SELECT * FROM CASOS_POR_COMUNA WHERE Comuna = ' + entrada
-            cursor.execute(select)
-            print('llega aca')
-            for n_comuna, id_comuna, pob, casos, id_region in cursor:
-                porc = int(casos)/int(pob)
-                print('En la comuna', n_comuna, 'de los', pob, 'habitantes,', casos,'estan con Covid-21. Esto es un',porc*100,'% de la comuna.')
-    
+          
     elif opcion == '4':
-        entrada = input('Ingrese el codigo o nombre de la región a vizualizar:\t')
+        entrada = input('Ingrese el codigo de la región a vizualizar:\t')
         if entrada[0] in '0123456789':  #En caso de que el user ingrese el id de la region
-            select = 'SELECT * FROM CASOS_POR_REGION WHERE Codigo_region = ' + entrada
+            select = 'SELECT poblacion,casos_confirmados FROM CASOS_POR_COMUNA WHERE Codigo_region = ' + entrada
+            
+            casos_region = 0
+            pob_region = 0
+            
             cursor.execute(select)
 
-            for id_region, n_region, casos, pob in cursor:
-                porc = int(casos)/int(pob)
-                print('En la región', n_region, 'de los', pob, 'habitantes,', casos,'estan con Covid-21. Esto es un',round(porc*100),'% de la región.')
-        else:   # en caso de que el user ingrese el nombre de la region 
-            select = 'SELECT * FROM CASOS_POR_COMUNA WHERE Region = ' + entrada
-            cursor.execute(select)
-            print('llega aca')
-            for id_region, n_region, casos, pob in cursor:
-                porc = int(casos)/int(pob)
-                print('En la región', n_region, 'de los', pob, 'habitantes,', casos,'estan con Covid-21. Esto es un',porc*100,'% de la región.')
+            for  pob, casos in cursor:
+                casos_region += casos
+                pob_region += pob
 
+            cursor.execute("SELECT * FROM CASOS_POR_REGION WHERE Codigo_region = :1", [entrada])
+
+            for id_region, nombre in cursor:
+                
+                porc = int(casos_region)/int(pob_region)
+                print('En la región', nombre, 'de los', pob_region, 'habitantes,', casos_region,'estan con Covid-21. Esto es un',round(porc*100),'% de la región.')
+        
     elif opcion == '5':
         cursor.execute("""SELECT * FROM vista_all_comunas """)
 
@@ -160,23 +181,83 @@ while opcion != '0':
             print(' ', comuna, '\t\t', casos)
     
     elif opcion == '6':
-        cursor.execute("""SELECT * FROM vista_all_regiones """)
 
+        regiones = casos_region(cursor)
+            
         print('\tRegion\t\t|\tCasos\t')
-        for region, casos in cursor:
+        for id_r, data in regiones.items():
+            region, casos = data 
             print(' ', region, '\t\t', casos)
     
-    # elif opcion == '7':
-    #     print('Ingrese el numero de casos y el código de la comuna a la que pertenecen (n, id):')
-    #     entrada = input('>>> ')
-    #     n, id_comuna = entrada.split(', ')
+    elif opcion == '7':
+        print('Ingrese el numero de casos a aumentar y el código de la comuna a la que pertenecen (n, id):')
+        entrada = input('>>> ')
+        n, id_comuna = entrada.split(', ')
 
-    #     cursor.execute("SELECT * FROM CASOS_POR_COMUNA WHERE Codigo_region = :id",[int(id_comuna)])
+        res = mod_cant_casos_comuna(cursor, id_comuna, n)
+        print(res)
+    
+    elif opcion == '8':
+        print('Ingrese el numero de casos a disminuir y el código de la comuna a la que pertenecen (n, id):')
+        entrada = input('>>> ')
+        n, id_comuna = entrada.split(', ')
 
-    #     update = 'UPDATE CASOS_POR_COMUNA SET Casos_confirmados = ' + str(casos)
-    #     update += ', Poblacion = ' + str(pob) + ' WHERE Codigo_region = ' + id_region
+        n = '-' + n
 
-    #elif opcion == '9':
+        res = mod_cant_casos_comuna(cursor, id_comuna, n)
+
+        print(res)
+
+    elif opcion == '9':
+        id_comuna1 = input('Ingrese el Codigo de la primera comuna a combinar:\n>>>')
+        id_comuna2 = input('Ingrese el Codigo de la segunda comuna a combinar:\n>>>')
+
+        id_comuna1 = id_comuna1.strip()
+
+        cursor.execute("SELECT * FROM CASOS_POR_COMUNA WHERE Codigo_comuna = " + id_comuna1)
+
+        nombre_c1, _, pob1, casos1, id_r1 = cursor.fetchall()[0]
+        
+        cursor.execute("SELECT * FROM CASOS_POR_COMUNA WHERE Codigo_comuna = " + id_comuna2)
+
+        nombre_c2, _, pob2, casos2, id_r2 = cursor.fetchall()[0]
+
+        if id_r1 != id_r2:
+            r_objet = input('En que Region desea dejar la comuna nueva? [1 o 2]\n>>>')
+            r_objet = id_r1 if r_objet == '1' else id_r2
+            id_comunaNew = id_comuna1 if r_objet == '1' else id_comuna2
+        else:
+            r_objet = id_r1
+            id_comunaNew = id_comuna1
+
+        nombre_cnew = input('Ingrese el nombre de la comuna nueva:\n>>>')
+       
+        #Borrado de las comunas:
+
+        cursor.execute("DELETE FROM CASOS_POR_COMUNA WHERE Codigo_comuna = " + id_comuna1)
+        cursor.execute("DELETE FROM CASOS_POR_COMUNA WHERE Codigo_comuna = " + id_comuna2)
+
+        #Falta crear id para comuna nueva
+            #Hacer count regiones, y el id sería: id_region + ???
+
+        #Insercion comuna nueva:
+
+        pob_new = int(pob1) + int(pob2)
+        casos_new = int(casos1) + int(casos2)
+
+        try:
+            cursor.execute("INSERT INTO CASOS_POR_COMUNA VALUES(:1, :2, :3, :4, :5)", [nombre_cnew, id_comunaNew, pob_new, casos_new,r_objet])
+        
+        except Exception as err:
+            print('Hubo algun error combinando las comunas:',err)
+        else:
+            print('Combinacion completada')
+            connection.commit()
+
+        
+
+        
+
 
 
 
