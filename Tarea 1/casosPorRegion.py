@@ -1,20 +1,26 @@
 import cx_Oracle
 
+def id_region_para_comuna(cEnR, idComuna):
+    for key, value in cEnR.items():
+        if int(idComuna) in value:
+            return key
+    return -1
+
 connection = cx_Oracle.connect('TODO', '123', 'localhost:1521')
 print('Database version:', connection.version)
 cursor = connection.cursor()
 
-# cursor.execute (
-#     """
-#         CREATE TABLE CASOS_POR_REGION(
-#             Codigo_region INTEGER NOT NULL,
-#             Region VARCHAR2(50) NOT NULL,
-#             Casos_confirmados INTEGER NOT NULL,
-#             Poblacion INTEGER NOT NULL,
-#             PRIMARY KEY(Codigo_region)
-#         )
-#     """
-# )
+cursor.execute (
+    """
+        CREATE TABLE CASOS_POR_REGION(
+            Codigo_region INTEGER NOT NULL,
+            Region VARCHAR2(50) NOT NULL,
+            Casos_confirmados INTEGER NOT NULL,
+            Poblacion INTEGER NOT NULL,
+            PRIMARY KEY(Codigo_region)
+        )
+    """
+)
 
 casos_regiones = {} #id_region : [region,casos,poblacion]
 comunas_en_region = {} #id_region : [comuna,comuna2...]
@@ -33,17 +39,21 @@ with open('RegionesComunas.csv') as regionesC_file:
         
         comunas_en_region[int(line[1])].append(int(line[2]))
 
-for region in casos_regiones.keys():
-    for comuna in comunas_en_region[region]:
-        sel = "SELECT * FROM CASOS_POR_COMUNA WHERE Codigo_comuna = " + str(comuna)
+with open('CasosConfirmadosPorComuna.csv') as casosPorC_file:
 
-        cursor.execute(sel)
+    casosPorC = {} #dict[cod_comuna] = [info]
 
-        for _, id_comuna,pob,casos in cursor:
-    
-            casos_regiones[region][1] += casos
-            casos_regiones[region][2] += pob
+    next(casosPorC_file) #Para saltarse la primera linea con headers
 
+    for line in casosPorC_file:
+        line = line.strip().split(',')
+        comuna,id_comuna, pob, casos = line
+        id_region = id_region_para_comuna(comunas_en_region, id_comuna)
+        if id_region != -1:
+            casos_regiones[id_region][1] += int(casos)
+            casos_regiones[id_region][2] += int(pob)
+
+print(casos_regiones)
 try:
     for id_region, lista in casos_regiones.items():
         region, casos, pob = lista
