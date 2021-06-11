@@ -4,7 +4,7 @@ connection = cx_Oracle.connect('TODO', '123', 'localhost:1521')
 print('Database version:', connection.version)
 cursor = connection.cursor()
 
-cursor.execute("DROP TABLE CASOS_POR_COMUNA")
+# cursor.execute("DROP TABLE CASOS_POR_COMUNA")
 
 cursor.execute (
     """CREATE TABLE CASOS_POR_COMUNA(
@@ -25,6 +25,49 @@ cursor.execute (
 #     [ON DELETE reference_option]
 #     [ON UPDATE reference_option]
 # '''
+
+#Trigger que actualiza a regiones cuando se le hace un insert a comunas
+try:
+
+    cursor.execute(
+        """
+        CREATE OR REPLACE TRIGGER insert_casos_region
+        AFTER INSERT
+        ON CASOS_POR_COMUNA
+        FOR EACH ROW
+        BEGIN 
+            UPDATE CASOS_POR_REGION
+            SET Casos_confirmados = Casos_confirmados + :new.casos_confirmados,
+            poblacion = poblacion + :new.poblacion
+            WHERE codigo_region = :new.codigo_region;        
+        END;
+        """
+    )
+except  Exception as err:
+    print('Hubo algun error creando el trigger insert_casos_region:',err)
+else:
+    print('Trigger insert_casos_region creado')
+
+#Trigger que actualiza a regiones cuando se hace un update a comunas
+try:
+    cursor.execute(
+        """
+        CREATE OR REPLACE TRIGGER update_casos_comuna
+        AFTER UPDATE
+        ON CASOS_POR_COMUNA
+        FOR EACH ROW
+        BEGIN 
+            UPDATE CASOS_POR_REGION
+            SET Casos_confirmados = Casos_confirmados - :old.casos_confirmados + :new.casos_confirmados,
+            poblacion = poblacion - :old.poblacion + :new.poblacion
+            WHERE codigo_region = :new.codigo_region;        
+        END;
+        """
+    )
+except  Exception as err:
+    print('Hubo algun error creando el trigger update_casos_comuna:',err)
+else:
+    print('Trigger update_casos_comuna creado')
 
 with open('CasosConfirmadosPorComuna.csv') as casosPorC_file:
 

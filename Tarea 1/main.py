@@ -8,21 +8,6 @@ def create_comuna(cursor, connection, comuna, id_comuna, pob, casos, id_region):
         cursor.execute (
             """INSERT INTO CASOS_POR_COMUNA VALUES (:Comuna, :Codigo_comuna, :Poblacion, :Casos_confirmados, :Codigo_region)""",[comuna,int(id_comuna), pob, casos, int(id_region)]
         )
-        
-        #Se actualizan datos en casos_por_region
-        select = 'SELECT * FROM CASOS_POR_REGION WHERE Codigo_region = ' + id_region
-        cursor.execute(select)
-
-        print('casos prev', casos)
-        for i,r,c,p in cursor:  #id_region, region, casos, poblacion
-            casos += c
-            pob += p
-        print('casos desp', casos)
-        
-        update = 'UPDATE CASOS_POR_REGION SET  Casos_confirmados = ' + str(casos)
-        update += ', Poblacion = ' + str(pob) + ' WHERE Codigo_region = ' + id_region
-
-        cursor.execute(update)
 
     except Exception as err:
         print('Hubo algun error creando la comuna:',err)
@@ -41,19 +26,6 @@ def create_region(cursor, connection, region, id_region):
     else:
         print('Insercion completada')
         connection.commit()
-    
-def casos_region(cursor):
-    regiones = {}
-    cursor.execute("SELECT * FROM CASOS_POR_REGION")
-
-    for id_r, nombre in cursor:
-        regiones[id_r] = [nombre, 0]
-    
-    cursor.execute("""SELECT Casos_confirmados, Codigo_region FROM CASOS_POR_COMUNA""")
-
-    for casos, cod_r in cursor:
-        regiones[cod_r][1] += casos
-    return regiones
 
 def mod_cant_casos_comuna(cursor, id_comuna, n):
     cursor.execute("SELECT Casos_confirmados FROM CASOS_POR_COMUNA WHERE Codigo_comuna = :id",[id_comuna])
@@ -66,7 +38,7 @@ def mod_cant_casos_comuna(cursor, id_comuna, n):
     try:
         cursor.execute(update)
     except Exception as err:
-        print('Hubo algun error creando agregando casos a la Comuna:', err)
+        print('Hubo algun error modificando casos de la Comuna:', err)
         return'Hubo algun error'
     else:
         connection.commit()
@@ -76,29 +48,19 @@ connection = cx_Oracle.connect('TODO', '123', 'localhost:1521')
 print('Database version:', connection.version)
 cursor = connection.cursor()
 
-#Creación Trigger, este revisa que se mantenga la regla de casos <= 15% de la pob total por región.
-
-cursor.execute(
-    """
-    CREATE OR REPLACE TRIGGER trigger_casos_region_15
-    BEFORE INSERT OR UPDATE
-    ON CASOS_POR_REGION
-    FOR EACH ROW
-    BEGIN
-        IF :new.poblacion <> 0 AND :new.casos_confirmados / :new.poblacion > 0.15 THEN
-            :new.casos_confirmados := -1;
-            :new.poblacion := -1;
-        END IF;
-    END trigger_casos_region_15;
-    """
-)
-
 # Creación Views:
 
 cursor.execute(
     """
     CREATE OR REPLACE VIEW vista_all_comunas AS
-        SELECT comuna, casos_confirmados FROM CASOS_POR_COMUNA ORDER BY Codigo_comuna
+        SELECT comuna, casos_confirmados FROM CASOS_POR_COMUNA ORDER BY Codigo_region
+    """
+)
+
+cursor.execute(
+    """
+    CREATE OR REPLACE VIEW vista_all_regiones AS
+        SELECT region, casos_confirmados FROM CASOS_POR_REGION ORDER BY Codigo_region
     """
 )
 
@@ -155,23 +117,13 @@ while opcion != '0':
     elif opcion == '4':
         entrada = input('Ingrese el codigo de la región a vizualizar:\t')
         if entrada[0] in '0123456789':  #En caso de que el user ingrese el id de la region
-            select = 'SELECT poblacion,casos_confirmados FROM CASOS_POR_COMUNA WHERE Codigo_region = ' + entrada
-            
-            casos_region = 0
-            pob_region = 0
-            
+            select = 'SELECT region, casos_cofirmados, poblacion FROM CASOS_POR_REGION WHERE Codigo_region = ' + entrada
             cursor.execute(select)
 
-            for  pob, casos in cursor:
-                casos_region += casos
-                pob_region += pob
+            for nombre, casos, pob in cursor:
 
-            cursor.execute("SELECT * FROM CASOS_POR_REGION WHERE Codigo_region = :1", [entrada])
-
-            for id_region, nombre in cursor:
-                
-                porc = int(casos_region)/int(pob_region)
-                print('En la región', nombre, 'de los', pob_region, 'habitantes,', casos_region,'estan con Covid-21. Esto es un',round(porc*100),'% de la región.')
+                porc = int(casos)/int(pob)
+                print('En la región', nombre, 'de los', pob, 'habitantes,', casos,'estan con Covid-21. Esto es un',round(porc*100),'% de la región.')
         
     elif opcion == '5':
         cursor.execute("""SELECT * FROM vista_all_comunas """)
@@ -182,11 +134,10 @@ while opcion != '0':
     
     elif opcion == '6':
 
-        regiones = casos_region(cursor)
-            
+        cursor.execute("""SELECT * FROM vista_all_regiones """)
+
         print('\tRegion\t\t|\tCasos\t')
-        for id_r, data in regiones.items():
-            region, casos = data 
+        for region, casos in cursor:
             print(' ', region, '\t\t', casos)
     
     elif opcion == '7':
@@ -254,7 +205,33 @@ while opcion != '0':
             print('Combinacion completada')
             connection.commit()
 
+    elif opcion == '10':
+        id_region1 = input('Ingrese el Codigo de la primera comuna a combinar:\n>>>')
+        id_region2 = input('Ingrese el Codigo de la segunda comuna a combinar:\n>>>')
+
+        if id_region1 == id_region2:
+            print('Son los mismos códigos de Region!, ingrese regiones distintas :)')
+            continue
+
+        nombre_Rnew = input('Ingrese el nombre de la nueva region:\n>>>')
+
+        #Se usara el codigo de la region 1 para la nueva region
+
+        update = 'UPDATE CASOS_POR_COMUNA SET Codigo_region = ' + id_region1 + ' WHERE Codigo_region = ' + id_region2
+
+        cursor.execute(update)
+
+        cursor.execute("DELETE FROM CASOS_POR_REGION WHERE Codigo_region = " + id_region2)
+
+        try:
+            cursor.execute("UPDATE CASOS_POR_REGION SET Region = :1 WHERE Codigo_region = :2", [nombre_Rnew, id_region1])
         
+        except Exception as err:
+            print('Hubo algun error combinando las comunas:',err)
+        else:
+            print('Combinacion completada')
+            connection.commit()
+
 
         
 
