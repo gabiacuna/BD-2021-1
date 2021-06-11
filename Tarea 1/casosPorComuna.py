@@ -4,7 +4,7 @@ connection = cx_Oracle.connect('TODO', '123', 'localhost:1521')
 print('Database version:', connection.version)
 cursor = connection.cursor()
 
-cursor.execute("DROP TABLE CASOS_POR_COMUNA")
+# cursor.execute("DROP TABLE CASOS_POR_COMUNA")
 
 cursor.execute (
     """CREATE TABLE CASOS_POR_COMUNA(
@@ -18,14 +18,6 @@ cursor.execute (
         )
     """
 )
-
-# '''
-# CONSTRAINT [symbol]] FOREIGN KEY
-#     [index_name] (col_name, ...)
-#     REFERENCES tbl_name (col_name,...)
-#     [ON DELETE reference_option]
-#     [ON UPDATE reference_option]
-# '''
 
 #Trigger que actualiza a regiones cuando se le hace un insert a comunas
 try:

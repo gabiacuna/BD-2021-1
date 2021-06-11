@@ -1,8 +1,5 @@
 import cx_Oracle
 
-voc_tilde = ['Ã¡', 'é', 'Ã\xad', 'ó', 'ú']
-voc_sT = 'aeiou'
-
 connection = cx_Oracle.connect('TODO', '123', 'localhost:1521')
 print('Database version:', connection.version)
 cursor = connection.cursor()
@@ -17,7 +14,7 @@ cursor.execute (
             Region VARCHAR2(50) NOT NULL,
             Casos_confirmados INTEGER NOT NULL,
             Poblacion INTEGER NOT NULL,
-            Porcent FLOAT(3),
+            Porcent FLOAT(5),
             PRIMARY KEY(Codigo_region)
         )
     """
@@ -34,6 +31,19 @@ cursor.execute(
         BEGIN
         :new.porcent := :new.casos_confirmados/:new.poblacion;
         END;
+    """
+)
+
+#Trigger que para eliminar las comunas cada vez que se elimina una region
+
+cursor.execute(
+    """
+    CREATE OR REPLACE TRIGGER borrado_region
+    BEFORE DELETE ON CASOS_POR_REGION
+    FOR EACH ROW
+    BEGIN
+        DELETE FROM CASOS_POR_COMUNA WHERE Codigo_region = :old.codigo_region;
+    END;
     """
 )
 
