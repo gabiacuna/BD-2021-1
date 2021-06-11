@@ -64,6 +64,20 @@ cursor.execute(
     """
 )
 
+cursor.execute(
+    """
+    CREATE OR REPLACE VIEW vista_porc_comunas AS
+        SELECT comuna, porcent FROM CASOS_POR_COMUNA ORDER BY porcent DESC
+    """
+)
+
+cursor.execute(
+    """
+    CREATE OR REPLACE VIEW vista_porc_regiones AS
+        SELECT region, porcent FROM CASOS_POR_REGION ORDER BY porcent DESC
+    """
+)
+
 menu = """
 1....Crear comuna.
 2....Crear region.
@@ -231,6 +245,18 @@ while opcion != '0':
         else:
             print('Combinacion completada')
             connection.commit()
+    
+    elif opcion == '11':
+        cursor.execute("SELECT * FROM vista_porc_comunas WHERE ROWNUM <= 5")
+        print('\tComuna\t\t|\tCasos/Pob\t')
+        for comuna, casos in cursor:
+            print(' ', comuna, '\t\t', round(float(casos)*100,2), '%')
+    
+    elif opcion == '12':
+        cursor.execute("SELECT * FROM vista_porc_regiones WHERE ROWNUM <= 5")
+        print('\tRegion\t\t|\tCasos/Pob\t')
+        for region, casos in cursor:
+            print(' ', region, '\t\t', round(float(casos)*100,2), '%')
 
 
         

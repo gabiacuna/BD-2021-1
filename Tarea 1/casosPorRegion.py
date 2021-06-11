@@ -17,27 +17,25 @@ cursor.execute (
             Region VARCHAR2(50) NOT NULL,
             Casos_confirmados INTEGER NOT NULL,
             Poblacion INTEGER NOT NULL,
+            Porcent FLOAT(3),
             PRIMARY KEY(Codigo_region)
         )
     """
 )
 
-#Trigger que revisa que los casos sean menores al 15% de la población
+#Trigger que actualiza los porcentajes en la tabla CASOS_POR_REGION
 
-# cursor.execute(
-#     """
-#     CREATE OR REPLACE TRIGGER trigger_casos_region_15
-#     BEFORE INSERT OR UPDATE
-#     ON CASOS_POR_REGION
-#     FOR EACH ROW
-#     BEGIN
-#         IF :new.poblacion <> 0 AND :new.casos_confirmados / :new.poblacion > 0.15 THEN
-#             :new.casos_confirmados := -1;
-#             :new.codigo_region := -1;
-#         END IF;
-#     END trigger_casos_region_15;
-#     """
-# )
+cursor.execute(
+    """
+    CREATE OR REPLACE TRIGGER porcent_casos_region
+        BEFORE UPDATE
+        ON CASOS_POR_REGION
+        FOR EACH ROW
+        BEGIN
+        :new.porcent := :new.casos_confirmados/:new.poblacion;
+        END;
+    """
+)
 
 regiones = {} #id_region : nombre_region
 
@@ -56,7 +54,7 @@ print(regiones)
 try:
     for id_region, n_region in regiones.items():
         cursor.execute (
-            """INSERT INTO CASOS_POR_REGION VALUES (:Codigo_region, :Region, 0, 0)""",[id_region,n_region]
+            """INSERT INTO CASOS_POR_REGION VALUES (:Codigo_region, :Region, 0, 0, 0)""",[id_region,n_region]
         )
 except Exception as err:
     print('Hubo algun error insertando datos:',err)
