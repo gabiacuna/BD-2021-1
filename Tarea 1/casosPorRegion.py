@@ -14,7 +14,7 @@ cursor.execute (
             Region VARCHAR2(50) NOT NULL,
             Casos_confirmados INTEGER NOT NULL,
             Poblacion INTEGER NOT NULL,
-            Porcent FLOAT(5),
+            Porcent FLOAT(5) DEFAULT 0,
             PRIMARY KEY(Codigo_region)
         )
     """

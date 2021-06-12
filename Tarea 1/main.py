@@ -109,21 +109,6 @@ cursor.execute(
     """
 )
 
-# #Trigger casos por region > 15%
-# cursor.execute(
-#     """
-#     CREATE OR REPLACE TRIGGER casos_region_15
-#     BEFORE INSERT OR UPDATE
-#     ON CASOS_POR_REGION
-#     FOR EACH ROW
-#     BEGIN
-#         IF :new.poblacion <> 0 AND :new.casos_confirmados / :new.poblacion > 0.15 THEN
-#             DELETE FROM casos_por_region WHERE Codigo_region = :new.codigo_region;
-#         END IF;
-#     END;
-#     """
-# )
-
 menu = """
 1....Crear comuna.
 2....Crear region.
@@ -226,11 +211,11 @@ while opcion != '0':
 
         cursor.execute("SELECT * FROM CASOS_POR_COMUNA WHERE Codigo_comuna = " + id_comuna1)
 
-        nombre_c1, _, pob1, casos1, id_r1 = cursor.fetchall()[0]
+        nombre_c1, _, pob1, casos1, id_r1, porc= cursor.fetchall()[0]
         
         cursor.execute("SELECT * FROM CASOS_POR_COMUNA WHERE Codigo_comuna = " + id_comuna2)
 
-        nombre_c2, _, pob2, casos2, id_r2 = cursor.fetchall()[0]
+        nombre_c2, _, pob2, casos2, id_r2, porc = cursor.fetchall()[0]
 
         if id_r1 != id_r2:
             r_objet = input('En que Region desea dejar la comuna nueva? [1 o 2]\n>>> ')
@@ -256,23 +241,23 @@ while opcion != '0':
         casos_new = int(casos1) + int(casos2)
 
         try:
-            cursor.execute("INSERT INTO CASOS_POR_COMUNA VALUES(:1, :2, :3, :4, :5)", [nombre_cnew, id_comunaNew, pob_new, casos_new,r_objet])
-        
+            cursor.execute("INSERT INTO CASOS_POR_COMUNA(comuna,codigo_comuna,poblacion,casos_confirmados,codigo_region) VALUES(:1, :2, :3, :4, :5)", [nombre_cnew, id_comunaNew, pob_new, casos_new,r_objet])
         except Exception as err:
             print('Hubo algun error combinando las comunas:',err)
         else:
             print('Combinacion completada')
+            check_15(cursor, connection, 0, 0, r_objet )
             connection.commit()
 
     elif opcion == '10':
-        id_region1 = input('Ingrese el Codigo de la primera comuna a combinar:\n>>> ')
-        id_region2 = input('Ingrese el Codigo de la segunda comuna a combinar:\n>>> ')
+        id_region1 = input('Ingrese el Codigo de la primera region a combinar:\n>>> ')
+        id_region2 = input('Ingrese el Codigo de la segunda region a combinar:\n>>> ')
 
         if id_region1 == id_region2:
             print('Son los mismos códigos de Region!, ingrese regiones distintas :)')
             continue
 
-        nombre_Rnew = input('Ingrese el nombre de la nueva region:\n>>>')
+        nombre_Rnew = input('Ingrese el nombre de la nueva region:\n>>> ')
 
         #Se usara el codigo de la region 1 para la nueva region
 
@@ -289,6 +274,7 @@ while opcion != '0':
             print('Hubo algun error combinando las comunas:',err)
         else:
             print('Combinacion completada')
+            check_15(cursor, connection, 0,0,id_region1)
             connection.commit()
     
     elif opcion == '11':

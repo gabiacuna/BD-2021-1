@@ -13,7 +13,7 @@ cursor.execute (
             Poblacion INTEGER NOT NULL,
             Casos_confirmados INTEGER NOT NULL,
             Codigo_region INTEGER REFERENCES CASOS_POR_REGION(Codigo_region),
-            Porcent FLOAT(3),
+            Porcent FLOAT(5) DEFAULT 0,
             PRIMARY KEY(Codigo_comuna)
         )
     """

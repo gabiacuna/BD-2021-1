@@ -9,5 +9,3 @@ Se considero que los datos ingresados en los archivos iniciales estan correctos,
 Ejecución:
 
 1° correr casosPorRegion,  luego casosPorComuna, al final main.
-
-~ se pueden correr con py nombre_archivo o f5 desde vs.
