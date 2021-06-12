@@ -4,7 +4,7 @@ connection = cx_Oracle.connect('TODO', '123', 'localhost:1521')
 print('Database version:', connection.version)
 cursor = connection.cursor()
 
-cursor.execute("DROP TABLE CASOS_POR_COMUNA")
+# cursor.execute("DROP TABLE CASOS_POR_COMUNA")
 cursor.execute("DROP TABLE CASOS_POR_REGION")
 
 cursor.execute (
