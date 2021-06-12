@@ -4,6 +4,7 @@ connection = cx_Oracle.connect('TODO', '123', 'localhost:1521')
 print('Database version:', connection.version)
 cursor = connection.cursor()
 
+#para borrar las tablas en caso de que existan previamente
 # cursor.execute("DROP TABLE CASOS_POR_COMUNA")
 cursor.execute("DROP TABLE CASOS_POR_REGION")
 
@@ -12,8 +13,8 @@ cursor.execute (
         CREATE TABLE CASOS_POR_REGION(
             Codigo_region INTEGER NOT NULL,
             Region VARCHAR2(50) NOT NULL,
-            Casos_confirmados INTEGER NOT NULL,
-            Poblacion INTEGER NOT NULL,
+            Casos_confirmados INTEGER DEFAULT 0,
+            Poblacion INTEGER DEFAULT 0,
             Porcent FLOAT(5) DEFAULT 0,
             PRIMARY KEY(Codigo_region)
         )
@@ -34,19 +35,6 @@ cursor.execute(
     """
 )
 
-#Trigger que para eliminar las comunas cada vez que se elimina una region
-
-cursor.execute(
-    """
-    CREATE OR REPLACE TRIGGER borrado_region
-    BEFORE DELETE ON CASOS_POR_REGION
-    FOR EACH ROW
-    BEGIN
-        DELETE FROM CASOS_POR_COMUNA WHERE Codigo_region = :old.codigo_region;
-    END;
-    """
-)
-
 regiones = {} #id_region : nombre_region
 
 with open('RegionesComunas.csv') as regionesC_file:
@@ -57,14 +45,14 @@ with open('RegionesComunas.csv') as regionesC_file:
         line = line.strip().split(',')
         nombre, cod,_ = line
         if int(cod) not in regiones.keys():
-            regiones[cod] = nombre
+            regiones[cod] = nombre  #Se guarda el codigo y nombre de la region en el dict
 
-print(regiones)
+#print(regiones)
 
 try:
     for id_region, n_region in regiones.items():
         cursor.execute (
-            """INSERT INTO CASOS_POR_REGION VALUES (:Codigo_region, :Region, 0, 0, 0)""",[id_region,n_region]
+            """INSERT INTO CASOS_POR_REGION(Codigo_region, Region) VALUES (:1, :2)""",[id_region,n_region]
         )
 except Exception as err:
     print('Hubo algun error insertando datos:',err)

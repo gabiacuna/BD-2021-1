@@ -62,6 +62,18 @@ except  Exception as err:
 else:
     print('Trigger update_casos_comuna creado')
 
+#Trigger que para eliminar las comunas cada vez que se elimina una region
+
+cursor.execute(
+    """
+    CREATE OR REPLACE TRIGGER borrado_region
+    BEFORE DELETE ON CASOS_POR_REGION
+    FOR EACH ROW
+    BEGIN
+        DELETE FROM CASOS_POR_COMUNA WHERE Codigo_region = :old.codigo_region;
+    END;
+    """
+)
 
 
 cursor.execute(
