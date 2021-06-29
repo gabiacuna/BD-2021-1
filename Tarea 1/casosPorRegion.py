@@ -4,20 +4,38 @@ connection = cx_Oracle.connect('TODO', '123', 'localhost:1521')
 print('Database version:', connection.version)
 cursor = connection.cursor()
 
+#para borrar las tablas en caso de que existan previamente
+# cursor.execute("DROP TABLE CASOS_POR_COMUNA")
+cursor.execute("DROP TABLE CASOS_POR_REGION")
+
 cursor.execute (
     """
         CREATE TABLE CASOS_POR_REGION(
             Codigo_region INTEGER NOT NULL,
             Region VARCHAR2(50) NOT NULL,
-            Casos_confirmados INTEGER NOT NULL,
-            Poblacion INTEGER NOT NULL,
+            Casos_confirmados INTEGER DEFAULT 0,
+            Poblacion INTEGER DEFAULT 0,
+            Porcent FLOAT(5) DEFAULT 0,
             PRIMARY KEY(Codigo_region)
         )
     """
 )
 
-casos_regiones = {} #id_region : [region,casos,poblacion]
-comunas_en_region = {} #id_region : [comuna,comuna2...]
+#Trigger que actualiza los porcentajes en la tabla CASOS_POR_REGION
+
+cursor.execute(
+    """
+    CREATE OR REPLACE TRIGGER porcent_casos_region
+        BEFORE UPDATE
+        ON CASOS_POR_REGION
+        FOR EACH ROW
+        BEGIN
+        :new.porcent := :new.casos_confirmados/:new.poblacion;
+        END;
+    """
+)
+
+regiones = {} #id_region : nombre_region
 
 with open('RegionesComunas.csv') as regionesC_file:
 
@@ -25,30 +43,16 @@ with open('RegionesComunas.csv') as regionesC_file:
 
     for line in regionesC_file:     #Region,Codigo Region,Codigo Comuna
         line = line.strip().split(',')
-        if int(line[1]) not in casos_regiones.keys():
-            casos_regiones[int(line[1])] = [line[0],0,0]
+        nombre, cod,_ = line
+        if int(cod) not in regiones.keys():
+            regiones[cod] = nombre  #Se guarda el codigo y nombre de la region en el dict
 
-        if int(line[1]) not in comunas_en_region.keys():
-            comunas_en_region[int(line[1])] = []
-        
-        comunas_en_region[int(line[1])].append(int(line[2]))
-
-for region in casos_regiones.keys():
-    for comuna in comunas_en_region[region]:
-        sel = "SELECT * FROM CASOS_POR_COMUNA WHERE Codigo_comuna = " + str(comuna)
-
-        cursor.execute(sel)
-
-        for _, id_comuna,pob,casos in cursor:
-    
-            casos_regiones[region][1] += casos
-            casos_regiones[region][2] += pob
+#print(regiones)
 
 try:
-    for id_region, lista in casos_regiones.items():
-        region, casos, pob = lista
+    for id_region, n_region in regiones.items():
         cursor.execute (
-            """INSERT INTO CASOS_POR_REGION VALUES (:Codigo_region, :Region, :Casos_confirmados, :Poblacion)""",[id_region,region, casos, pob ]
+            """INSERT INTO CASOS_POR_REGION(Codigo_region, Region) VALUES (:1, :2)""",[id_region,n_region]
         )
 except Exception as err:
     print('Hubo algun error insertando datos:',err)
