@@ -1,0 +1,33 @@
+General
+ Se debe hacer uso de triggers.
+ Se debe hacer uso de vistas.
+ El sistema debe tener navegación entre secciones (recargar la página o retroceder con
+el navegador no es válido).
+ Implementar sistema de usuarios.
+ El sistema debe mostrar el nombre de usuario que tiene la sesión activa en todo
+momento.
+Página principal
+ Se debe implementar una barra de búsqueda, esta permite buscar tags, usmitos y
+otros usuarios.
+ Se debe mostrar los usmitos de los usuarios que sigue la cuenta.
+ Se debe mostrar el Top 10 de tendencias de tags.
+ Debe existir una sección que te permita usmear, es decir, publicar un usmito.
+Perfil
+ CRUD para las lista.
+ CRUD para los usmitos.
+ Se puede editar datos del perfil y eliminar o desactivar la cuenta si se desea.
+ Se debe mostrar la información básica del perfil, como la cantidad de seguidores que
+tiene la persona, el nombre de usuario y la cantidad de usmitos escritos.
+ Se debe poder ver el perfil de otros usmers, además de seguirlos o dejar de seguirlos,
+según corresponda.
+ Se debe poder ver todas las personas a las que se sigue, las listas creadas y seguidas,
+mostrando el respectivo nombre de la lista y el creador de esta, además se debe poder
+ver los usuarios que pertenecen a la lista, y editarlo si es que la lista es propia.
+3Usmito
+ El usmito debe mostrar el texto y usuario asociado.
+ Se debe poder reusmear.
+ Se debe poder reaccionar con un “me encanta”.
+ Se debe mostrar la cantidad de “me encanta” en el usmito.
+ Se debe poder responder un usmito.
+ Al crear un usmito, se debe poder ingresar Tags.
+ Un usmito puede ser público o para “amigos cercanos”.
