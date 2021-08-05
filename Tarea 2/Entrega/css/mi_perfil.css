@@ -1,0 +1,134 @@
+html {
+    height: 100%;
+    font-size: 18px;
+  }
+
+:root {
+    --primary: #79B4A9;
+    --second: #BDE4A8;
+    --third: #D7F2BA;
+    --text: #14213d;
+    --text2: #676F54;
+    --headings: #023047;
+    --headings2: #9CC69B;
+}
+
+body{
+    font-family: sans-serif;
+    height: 100%;
+    margin: 0 auto;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: [col1-start] 40% [col2-start] 60%;
+    grid-template-rows: [row1-start] auto [row2-start] auto [row2-end];
+    grid-gap: 10px;
+    /* background-color: var(--text); */
+    color:  var(--third);
+}
+.box {
+    /* background-color: var(--third); */
+    color: var(--text2);
+    border-radius: 5px;
+    padding: 20px;
+  }
+.header {
+    grid-column: col1-start / col2-end;
+    grid-row: row1-start ;
+    position: relative;
+  }
+  .listas {
+    grid-column: col1-start ;
+    grid-row: row2-start / row2-end;
+    position: relative;
+  }
+  .usmitos {
+    grid-column: col2-start;
+    grid-row: row2-start ;
+    position: relative;
+  }
+
+.post_header p{
+    position: absolute;
+    color: var(--text2);
+    right: 5%;
+    top: 0;
+}
+
+.post_content{
+    margin-top: 5%;
+}
+
+ h4{
+    color: var(--headings);
+}
+
+h1{
+    color: var(--headings);
+}
+
+.textou p{
+    color: var(--text);
+}
+.post_body {
+    background-color: var(--second);
+    border:1px solid var(--text);
+    border-radius: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 10px;
+    position: relative;
+}
+
+.usmito{
+  background-color: var(--second);
+  border:1px solid var(--text);
+  border-radius: 20px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 10px;
+  position: relative;
+}
+
+.lista{
+  border:1px solid var(--text);
+  border-radius: 20px;
+  background-color: var(--second);
+  margin: 8px 0;
+  padding-left: 18%;
+  padding-right: 18%;
+}
+
+.lista p{
+  position:relative;
+  text-align: right;
+  margin-top: 0;
+}
+
+.header p{
+  position: relative;
+  text-align: right;
+  padding-right: 20px;
+}
+
+#nav_bar{
+  /* background-color: var(--third); */
+  margin: 5px;
+  padding: 5px;
+}
+
+#nav_bar input[type=button]{
+  background-color: var(--primary);
+  color: var(--text);
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  cursor: pointer;
+  border-radius: 30px;
+}
+
+#nav_bar input[type=button]:hover{
+  color: var(--third);
+  background-color: var(--headings);
+}

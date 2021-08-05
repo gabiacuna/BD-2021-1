@@ -1,0 +1,105 @@
+html {
+  height: 100%;
+}
+
+:root {
+    --primary: #79B4A9;
+    --second: #BDE4A8;
+    --third: #D7F2BA;
+    --text: #14213d;
+    --text2: #676F54;
+    --headings: #023047;
+    --headings2: #9CC69B;
+}
+
+body{
+  font-family: sans-serif;
+  height: 100%;
+  margin: 0 auto;
+}
+
+p{
+    text-align: center;
+}
+
+input[type=text], input[type=password] {
+    width: 20%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    border-radius: 30px;
+}
+
+input[type=button], input[type=submit], input[type=reset] {
+    background-color: var(--primary);
+    color: var(--text);
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    width: 40%;
+    border-radius: 30px;
+}
+
+input[type=button]:hover, input[type=submit]:hover{
+    color: var(--third);
+    background-color: var(--headings);
+}
+
+
+.warning {
+    background-color: var(--second);
+    border-radius: 5px;
+    border: var(--text);
+    width: 40%;
+}
+
+.tweetbox{
+    border:1px solid black;
+}
+
+#form_login {
+   text-align: center;
+   vertical-align: middle;
+}
+
+#warning {
+  text-align: center;
+  vertical-align: middle;
+  background-color: var(--second);
+  border-radius: 5px;
+  border: var(--text);
+  width: 40%;
+}
+
+a {
+    border: none;
+    padding:14px 20px ;
+    margin: 8px 0;
+    padding-left: 18%;
+    padding-right: 18%;
+    text-align: center;
+    border-radius: 30px;
+    color: var(--text);
+}
+  
+a:link, a:visited, a:focus {
+    background: var(--primary);
+}
+  
+a:hover {
+    background: var(--third);
+}
+  
+a:active {
+    background:var(--second);
+}
+
+.image{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+    }

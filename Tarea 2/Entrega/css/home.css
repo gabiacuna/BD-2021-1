@@ -1,0 +1,255 @@
+html {
+    height: 100%;
+    font-size: 18px;
+    word-wrap: break-word;
+    padding: 10px;
+
+  }
+
+:root {
+    --primary: #79B4A9;
+    --second: #BDE4A8;
+    --third: #D7F2BA;
+    --text: #14213d;
+    --text2: #676F54;
+    --headings: #023047;
+    --headings2: #9CC69B;
+}
+
+body{
+    font-family: sans-serif;
+    height: 100%;
+    margin: 5px auto;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 20px;
+}
+
+/* .col-2- */
+/*Tweet box:*/
+
+.tweetbox{
+    position: relative;
+    padding-bottom: 10px;
+    /* border-bottom: 8px solid var(--third); */
+    padding-right: 10px;
+}
+
+.tweetbox form{
+    display: flex;
+    flex-direction: column;
+    word-wrap: break-word;
+}
+
+.tweetbox_input{
+    border-radius: 50%;
+    height: 80px;
+}
+.tweetbox_input{
+    flex: 1;
+    margin-left: 20px;
+    font-size: 20px;
+    border: none;
+    outline: none;
+    width: 100%;
+}
+
+
+textarea{
+    border: none;
+    outline: none;
+    font-size: 20px;
+    word-wrap: break-word;
+
+}
+
+.col-2-of-3{
+    position: relative;
+    word-wrap: break-word;
+}
+
+
+.cb_lb{
+    display: inline-block;
+}
+
+[type=checkbox]{
+    /* opacity: 0; */
+    background: 0;
+}
+
+
+[type=checkbox] + label {
+    position: relative;
+    padding-left: 30px;
+    cursor: pointer;
+    display: inline-block;
+    /* line-height: 25px; */
+}
+
+[type=checkbox] + label::before{
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0px;
+    width: 18px;
+    height: 18px;
+    /* //outline: 2px solid #6a754e; */
+}
+
+[type=checkbox]:checked + label::before{
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 18px;
+    height: 18px;
+    /* //outline: 2px solid #14213d; */
+}
+
+[type=checkbox]:checked + label::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 18px;
+    height: 18px;
+    background-image: url(https://image.flaticon.com/icons/png/512/2107/2107957.png) ;
+    background-size:contain;
+}
+  
+
+/* input[type=button], input[type=submit], input[type=reset] {
+    background-color: var(--primary);
+    color: var(--text);
+    position: absolute;
+    right: 0;
+    bottom: -30px;
+    padding: 14px 20px;
+    margin: 8px 0; 
+    border: none;
+    cursor: pointer;
+    width: 100px;
+    border-radius: 30px;
+} */
+
+input[type=textbox]{
+    width: auto;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 30px;
+    width: 90%;
+    height: 25px;
+}
+
+.post_body {
+    background-color: var(--second);
+    border:1px solid var(--text);
+    border-radius: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 10px;
+    position: relative;
+    word-wrap: break-word;
+
+}
+
+.tag{
+    background-color: var(--second);
+    border:1px solid var(--text);
+    border-radius: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 10px;
+    position: relative;
+    word-wrap: break-word;
+}
+
+
+.col-1of-3 a{
+    border: none;
+    padding:14px 20px ;
+    margin: 8px 0;
+    padding-left: 18%;
+    padding-right: 18%;
+    text-align: center;
+    border-radius: 30px;
+    color: var(--text);
+}
+  
+.col-1of-3 a:link, a:visited, a:focus {
+    background: var(--primary);
+}
+  
+.col-1of-3 a:hover {
+    background: var(--third);
+}
+  
+.col-1of-3 a:active {
+    background:var(--second);
+}
+
+h1{
+    color: var(--headings);
+}
+
+h2{
+    color: var(--text2);
+}
+
+h3{
+    color: var(--headings);
+}
+
+p {
+    color: var(--text);
+}
+
+.listas{
+    border:1px solid var(--text);
+    border-radius: 20px;
+    background-color: var(--second);
+    margin: 8px 0;
+    padding-left: 18%;
+    padding-right: 18%;
+}
+
+.listas p{
+    position:relative;
+    text-align: right;
+    margin-top: 0;
+}
+
+#mi_perfil_but {
+    border:1px solid var(--text);
+    border-radius: 20px;
+    padding: 3px;
+    text-align: center;
+    background-color: var(--primary);
+    font-size: 20px;
+}
+
+#nav_bar{
+    /* background-color: var(--third); */
+    margin: 5px;
+    padding: 5px;
+}
+
+#nav_bar input[type=button]{
+    background-color: var(--primary);
+    color: var(--text);
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    border-radius: 30px;
+}
+
+#nav_bar input[type=button]:hover{
+    color: var(--third);
+    background-color: var(--headings);
+}
